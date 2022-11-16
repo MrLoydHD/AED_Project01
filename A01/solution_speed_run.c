@@ -313,73 +313,133 @@ static void solve_3(int final_position)
 //------------------------------------------------------------
 
 
-// typedef struct queue
-// {
-//   struct queue *Front;
-//   struct queue *Rear;
-//   int inp_arr[_max_road_size_];
-//   int Rear = -1;
-//   int Front = - 1;
-// }queue;
+typedef struct
+{
+  int n_moves;                         // the number of moves (the number of positions is one more than the number of moves)
+  int positions[1 + _max_road_size_];  // the positions (the first one must be zero)
+}
+solution_t;
 
-// static solution_t solution_4,solution_4_best;
-// static double solution_4_elapsed_time; // time it took to solve the problem
-// static unsigned long solution_4_count;
 
-// static void solution_4_bfs(int move_number, int position, int speed, int final_position)
-// {
-//   int new_speed, new_pos;
-//   solution_4_count++;
+typedef struct node
+{
+  int pos;
+  int speed;
+  int depth;
+  struct node *parent;
+} node;
 
-//   struct queue q;
-//   q.Rear = -1;
-//   q.Front = -1;
+static node inp_arr[31];
+static int Rear = - 1;
+static int Front = - 1;
 
-//   q.inp_arr[++q.Rear] = position;
-//   q.inp_arr[++q.Rear] = speed;
+void enqueue(node nd)
+{
+    if (Rear == 31 - 1)
+        printf("Overflow \n");
+    else
+    {
+        if (Front == - 1)
+      
+        Front = 0;
+        Rear = Rear + 1;
+        inp_arr[Rear] = nd;
+    }
+} 
+ 
+node dequeue()
+{
+    if (Front == - 1 || Front > Rear)
+    {
+        static node nothing;
+        nothing.pos = -100;
+        return nothing;
+    }
+    else
+    {
+        node ret = inp_arr[Front];
+        Front++;
+        return ret;
+    }
+} 
 
-//   while (q.Front != q.Rear) {
-//     position = q.inp_arr[++q.Front];
-//     speed = q.inp_arr[++q.Front];
+static solution_t solution_4,solution_4_best;
+static double solution_4_elapsed_time; // time it took to solve the problem
+static unsigned long solution_4_count;
 
-//     for (int i = 1; i <= 3; i++) {
-//       new_speed = speed + i - 2;
-//       new_pos = position + new_speed;
+static void solution_4_deque(int move_number, int position, int speed, int final_position)
+{
+  int new_speed, new_pos;
+  solution_4_count++;
 
-//       if (new_speed < 1 || new_speed > _max_road_speed_) {
-//         continue;
-//       }
+  struct node root;
+  move_number = 1;
 
-//       if (new_pos == final_position && new_speed == 1) {
-//         printf("Found solution in: %d", move_number);
-//         return;
-//       }
+  root.pos = position;
+  root.speed = speed;
+  root.depth = 0;
 
-//       for (int i = position; i < position + new_speed; i++) {
-//         if (max_road_speed[i] < new_speed) {
-//           continue;
-//         }
-//       }
+  enqueue(root);
 
-//       q.inp_arr[++q.Rear] = new_pos;
-//       q.inp_arr[++q.Rear] = new_speed;
-//     }
-//   }
-// }
+  while (1) {
 
-// static void solve_4(int final_position)
-// {
-//   if(final_position < 1 || final_position > _max_road_size_)
-//   {
-//     fprintf(stderr,"solve_4: bad final_position\n");
-//     exit(1);
-//   }
-//   solution_4_elapsed_time = cpu_time();
-//   solution_4_count = 0ul;
-//   solution_4_best.n_moves = final_position + 100;
-//   solution_4_deque(0,0,0,final_position);
-//   solution_4_elapsed_time = cpu_time() - solution_4_elapsed_time;
-// }
+    solution_4_count++;
+
+    struct node nd;
+    nd = dequeue();
+
+    if (nd.pos == -100) {
+      // CANNOT DEQUEUE
+      return ;
+    }
+
+    position = nd.pos;
+    speed = nd.speed;
+
+    for (int i = 3; i > 0; i--) {
+      new_speed = speed + i - 2;
+      new_pos = position + new_speed;
+
+      if (new_speed < 1 || new_speed > _max_road_speed_) {
+        continue;
+      }
+
+      if (new_pos == final_position && new_speed == 1) {
+        solution_4_best = solution_4;
+        solution_4_best.n_moves = nd.depth;
+        return;
+      }
+
+      for (int i = position; i < position + new_speed; i++) {
+        if (max_road_speed[i] < new_speed) {
+          continue;
+        }
+      }
+
+      struct node node_new;
+      node_new.speed = new_speed;
+      node_new.pos = new_pos;
+      node_new.depth = nd.depth + 1;
+      *node_new.parent = nd;
+
+      enqueue(node_new);
+    }
+  }
+}
+
+static void solve_4(int final_position)
+{
+  if(final_position < 1 || final_position > _max_road_size_)
+  {
+    fprintf(stderr,"solve_4: bad final_position\n");
+    exit(1);
+  }
+  solution_4_elapsed_time = cpu_time();
+  solution_4_count = 0ul;
+  solution_4_best.n_moves = final_position + 100;
+  solution_4_deque(0,0,0,final_position);
+  solution_4_elapsed_time = cpu_time() - solution_4_elapsed_time;
+}
 
 
 
