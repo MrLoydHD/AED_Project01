@@ -143,6 +143,7 @@ static void solution_2_while(int move_number,int position,int speed,int final_po
   int possiblemove = 1;
 
   while (position != final_position) {
+  solution_2_count++;
   solution_2.positions[move_number] = position;
   //if (ending == 0){}
     for (int i = 0; i < 3; i++) {
@@ -162,7 +163,6 @@ static void solution_2_while(int move_number,int position,int speed,int final_po
       //printf("Next Position: %d\n", next_position);
       //printf("Final Position: %d\n", final_position);
 
-      solution_2_count++;
 
       if (new_speed < 1 || new_speed > _max_road_speed_ || max_road_speed[position] < new_speed) continue;
         //printf("Speed not valid\n");
