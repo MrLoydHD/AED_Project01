@@ -444,7 +444,7 @@ static void solve_2(int final_position)
 
 //------------------------------------------------------------------------------
 
-static solution_t solution_5,solution_4_best;
+static solution_t solution_5,solution_5_best;
 static double solution_5_elapsed_time; // time it took to solve the problem
 static unsigned long solution_5_count; // effort dispended solving the problem
 
