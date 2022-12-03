@@ -264,6 +264,77 @@ static void solve_3(int final_position)
   solution_3_elapsed_time = cpu_time() - solution_3_elapsed_time;
 }
 
+static solution_t solution_4,solution_4_best;
+static double solution_4_elapsed_time; // time it took to solve the problem
+static unsigned long solution_4_count; // effort dispended solving the problem
+
+
+static void solution_4_while(int move_number,int position,int speed,int final_position)
+{
+  int diff_speeds[3] = {1,0,-1};
+  int possiblemove = 1;
+  
+  while (position != final_position) {
+    solution_4.positions[move_number] = position;
+    for (int i = 0; i < 3; i++) {
+      solution_4_count++;
+      possiblemove = 1;
+      int new_speed = speed + diff_speeds[i];
+      int next_position = position + new_speed;
+
+      if (new_speed < 1 || new_speed > _max_road_speed_ || max_road_speed[position] < new_speed) continue;
+      
+      int speed_to_check = new_speed;
+      int x_to_speed = speed_to_check;
+      for (int j = 1; j <= (new_speed * (new_speed + 1) / 2); j++) {
+        if (position + j > final_position) {
+          possiblemove = 0;
+          break;
+        }
+        
+        if (x_to_speed == 0) {
+          speed_to_check -= 1;
+          x_to_speed = speed_to_check;
+        }
+
+        if (max_road_speed[position + j] < speed_to_check) {
+          
+          possiblemove = 0;
+
+          break;
+        }
+        x_to_speed -= 1;
+      }
+
+      if (possiblemove) {
+        position += new_speed;
+        speed = new_speed;
+        move_number++;
+        break;
+      }
+    }
+
+  }
+  solution_4.positions[move_number] = position;
+  solution_4_best = solution_4;
+  solution_4_best.n_moves = move_number;
+  return;
+}
+
+static void solve_4(int final_position)
+{
+  if(final_position < 1 || final_position > _max_road_size_)
+  {
+    fprintf(stderr,"solve_4: bad final_position\n");
+    exit(1);
+  }
+  solution_4_elapsed_time = cpu_time();
+  solution_4_count = 0ul;
+  solution_4_best.n_moves = final_position + 100;
+  solution_4_while(0,0,0,final_position);
+  //int move_number,int position,int speed,int final_position
+  solution_4_elapsed_time = cpu_time() - solution_4_elapsed_time;
+}
 //------------------------------------------------------------
 
 // typedef struct
@@ -603,6 +674,25 @@ static void example3(void)
   printf("positions:");
   for(i = 0;i <= solution_3_best.n_moves;i++)
     printf(" %d",solution_3_best.positions[i]);
+  printf("\n");
+}
+
+static void example4(void)
+{
+  int i,final_position;
+
+  srandom(0xAED2022);
+  init_road_speeds();
+  final_position = 30;
+  solve_4(final_position);
+  make_custom_pdf_file("example.pdf",final_position,&max_road_speed[0],solution_4_best.n_moves,&solution_4_best.positions[0],solution_4_elapsed_time,solution_4_count,"While loop but better");
+  printf("mad road speeds:");
+  for(i = 0;i <= final_position;i++)
+    printf(" %d",max_road_speed[i]);
+  printf("\n");
+  printf("positions:");
+  for(i = 0;i <= solution_4_best.n_moves;i++)
+    printf(" %d",solution_4_best.positions[i]);
   printf("\n");
 }
 
